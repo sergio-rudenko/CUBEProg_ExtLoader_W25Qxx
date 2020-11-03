@@ -6,15 +6,15 @@ __root struct StorageInfo const StorageInfo  =  {
 #else
 struct StorageInfo const StorageInfo = {
 #endif
-        "TEPLOINFORMATOR2_Bastion-W25Q16_v1.0", 	// Device Name + version number
+        "TEPLOINFORMATOR2_Bastion-W25Q16_v1.1", 	// Device Name + version number
         SPI_FLASH,                  // Device Type
         0x00000000,                	// Device Start Address
-        0x00200000,                 // Device Size in Bytes (2MBytes/16Mbits)
-        0x00000100,                 // Programming Page Size 256Bytes
+        0x00200000,                 // Device Size in Bytes (2 MBytes/16 Mbits)
+        0x00000100,                 // Programming Page Size 256 Bytes
         0xFF,                       // Initial Content of Erased Memory
 
         // Specify Size and Address of Sectors (view example below)
-        0x00000200, 0x00001000,     // Sector Num : 512 ,Sector Size: 4KBytes
+        0x00000200, 0x00001000,     // Sector Number : 512, Sector Size: 4 KBytes
         0x00000000, 0x00000000,
 };
 

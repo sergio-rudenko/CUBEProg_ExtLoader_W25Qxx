@@ -274,33 +274,15 @@ bool W25qxx_Init(void) {
 }
 //###################################################################################################################
 void W25qxx_EraseChip(void) {
-    while (w25qxx.Lock == 1)
-        W25qxx_Delay(1);
-    w25qxx.Lock = 1;
-#if (_W25QXX_DEBUG==1)
-	uint32_t	StartTime=HAL_GetTick();	
-	printf("w25qxx EraseChip Begin...\r\n");
-	#endif
     W25qxx_WriteEnable();
     W25qxx_Reset_CS();
     W25qxx_Spi(0xC7);
     W25qxx_Set_CS();
     W25qxx_WaitForWriteEnd();
-#if (_W25QXX_DEBUG==1)
-	printf("w25qxx EraseBlock done after %d ms!\r\n",HAL_GetTick()-StartTime);
-	#endif
-    W25qxx_Delay(10);
     w25qxx.Lock = 0;
 }
 //###################################################################################################################
 void W25qxx_EraseSector(uint32_t SectorAddr) {
-    while (w25qxx.Lock == 1)
-        W25qxx_Delay(1);
-    w25qxx.Lock = 1;
-#if (_W25QXX_DEBUG==1)
-	uint32_t	StartTime=HAL_GetTick();	
-	printf("w25qxx EraseSector %d Begin...\r\n",SectorAddr);
-	#endif
     W25qxx_WaitForWriteEnd();
     SectorAddr = SectorAddr * w25qxx.SectorSize;
     W25qxx_WriteEnable();
@@ -313,22 +295,10 @@ void W25qxx_EraseSector(uint32_t SectorAddr) {
     W25qxx_Spi(SectorAddr & 0xFF);
     W25qxx_Set_CS();
     W25qxx_WaitForWriteEnd();
-#if (_W25QXX_DEBUG==1)
-	printf("w25qxx EraseSector done after %d ms\r\n",HAL_GetTick()-StartTime);
-	#endif
-    W25qxx_Delay(1);
     w25qxx.Lock = 0;
 }
 //###################################################################################################################
 void W25qxx_EraseBlock(uint32_t BlockAddr) {
-    while (w25qxx.Lock == 1)
-        W25qxx_Delay(1);
-    w25qxx.Lock = 1;
-#if (_W25QXX_DEBUG==1)
-	printf("w25qxx EraseBlock %d Begin...\r\n",BlockAddr);
-	W25qxx_Delay(100);
-	uint32_t	StartTime=HAL_GetTick();	
-	#endif
     W25qxx_WaitForWriteEnd();
     BlockAddr = BlockAddr * w25qxx.SectorSize * 16;
     W25qxx_WriteEnable();
@@ -341,11 +311,6 @@ void W25qxx_EraseBlock(uint32_t BlockAddr) {
     W25qxx_Spi(BlockAddr & 0xFF);
     W25qxx_Set_CS();
     W25qxx_WaitForWriteEnd();
-#if (_W25QXX_DEBUG==1)
-	printf("w25qxx EraseBlock done after %d ms\r\n",HAL_GetTick()-StartTime);
-	W25qxx_Delay(100);
-	#endif
-    W25qxx_Delay(1);
     w25qxx.Lock = 0;
 }
 //###################################################################################################################
@@ -568,13 +533,6 @@ bool W25qxx_IsEmptyBlock(uint32_t Block_Address, uint32_t OffsetInByte,
 }
 //###################################################################################################################
 void W25qxx_WriteByte(uint8_t pBuffer, uint32_t WriteAddr_inBytes) {
-    while (w25qxx.Lock == 1)
-        W25qxx_Delay(1);
-    w25qxx.Lock = 1;
-#if (_W25QXX_DEBUG==1)
-	uint32_t	StartTime=HAL_GetTick();
-	printf("w25qxx WriteByte 0x%02X at address %d begin...",pBuffer,WriteAddr_inBytes);
-	#endif
     W25qxx_WaitForWriteEnd();
     W25qxx_WriteEnable();
     W25qxx_Reset_CS();
@@ -587,27 +545,16 @@ void W25qxx_WriteByte(uint8_t pBuffer, uint32_t WriteAddr_inBytes) {
     W25qxx_Spi(pBuffer);
     W25qxx_Set_CS();
     W25qxx_WaitForWriteEnd();
-#if (_W25QXX_DEBUG==1)
-	printf("w25qxx WriteByte done after %d ms\r\n",HAL_GetTick()-StartTime);
-	#endif
     w25qxx.Lock = 0;
 }
 //###################################################################################################################
 void W25qxx_WritePage(uint8_t *pBuffer, uint32_t Page_Address,
         uint32_t OffsetInByte, uint32_t NumByteToWrite_up_to_PageSize) {
-    while (w25qxx.Lock == 1)
-        W25qxx_Delay(1);
-    w25qxx.Lock = 1;
     if (((NumByteToWrite_up_to_PageSize + OffsetInByte) > w25qxx.PageSize)
             || (NumByteToWrite_up_to_PageSize == 0))
         NumByteToWrite_up_to_PageSize = w25qxx.PageSize - OffsetInByte;
     if ((OffsetInByte + NumByteToWrite_up_to_PageSize) > w25qxx.PageSize)
         NumByteToWrite_up_to_PageSize = w25qxx.PageSize - OffsetInByte;
-#if (_W25QXX_DEBUG==1)
-	printf("w25qxx WritePage:%d, Offset:%d ,Writes %d Bytes, begin...\r\n",Page_Address,OffsetInByte,NumByteToWrite_up_to_PageSize);
-	W25qxx_Delay(100);
-	uint32_t	StartTime=HAL_GetTick();
-	#endif	
     W25qxx_WaitForWriteEnd();
     W25qxx_WriteEnable();
     W25qxx_Reset_CS();
@@ -621,22 +568,6 @@ void W25qxx_WritePage(uint8_t *pBuffer, uint32_t Page_Address,
     W25qxx_SpiTransmit(pBuffer, NumByteToWrite_up_to_PageSize);
     W25qxx_Set_CS();
     W25qxx_WaitForWriteEnd();
-#if (_W25QXX_DEBUG==1)
-	StartTime = HAL_GetTick()-StartTime; 
-	for(uint32_t i=0;i<NumByteToWrite_up_to_PageSize ; i++)
-	{
-		if((i%8==0)&&(i>2))
-		{
-			printf("\r\n");
-			W25qxx_Delay(10);			
-		}
-		printf("0x%02X,",pBuffer[i]);		
-	}	
-	printf("\r\n");
-	printf("w25qxx WritePage done after %d ms\r\n",StartTime);
-	W25qxx_Delay(100);
-	#endif	
-    W25qxx_Delay(1);
     w25qxx.Lock = 0;
 }
 //###################################################################################################################
@@ -719,13 +650,6 @@ void W25qxx_WriteBlock(uint8_t *pBuffer, uint32_t Block_Address,
 }
 //###################################################################################################################
 void W25qxx_ReadByte(uint8_t *pBuffer, uint32_t Bytes_Address) {
-    while (w25qxx.Lock == 1)
-        W25qxx_Delay(1);
-    w25qxx.Lock = 1;
-#if (_W25QXX_DEBUG==1)
-	uint32_t	StartTime=HAL_GetTick();
-	printf("w25qxx ReadByte at address %d begin...\r\n",Bytes_Address);
-	#endif
     W25qxx_Reset_CS();
     W25qxx_Spi(0x0B);
     if (w25qxx.ID >= W25Q256)
@@ -736,21 +660,11 @@ void W25qxx_ReadByte(uint8_t *pBuffer, uint32_t Bytes_Address) {
     W25qxx_Spi(0);
     *pBuffer = W25qxx_Spi(W25QXX_DUMMY_BYTE);
     W25qxx_Set_CS();
-#if (_W25QXX_DEBUG==1)
-	printf("w25qxx ReadByte 0x%02X done after %d ms\r\n",*pBuffer,HAL_GetTick()-StartTime);
-	#endif
     w25qxx.Lock = 0;
 }
 //###################################################################################################################
 void W25qxx_ReadBytes(uint8_t *pBuffer, uint32_t ReadAddr,
         uint32_t NumByteToRead) {
-    while (w25qxx.Lock == 1)
-        W25qxx_Delay(1);
-    w25qxx.Lock = 1;
-#if (_W25QXX_DEBUG==1)
-	uint32_t	StartTime=HAL_GetTick();
-	printf("w25qxx ReadBytes at Address:%d, %d Bytes  begin...\r\n",ReadAddr,NumByteToRead);
-	#endif	
     W25qxx_Reset_CS();
     W25qxx_Spi(0x0B);
     if (w25qxx.ID >= W25Q256)
@@ -761,22 +675,6 @@ void W25qxx_ReadBytes(uint8_t *pBuffer, uint32_t ReadAddr,
     W25qxx_Spi(0);
     W25qxx_SpiReceive(pBuffer, NumByteToRead);
     W25qxx_Set_CS();
-#if (_W25QXX_DEBUG==1)
-	StartTime = HAL_GetTick()-StartTime; 
-	for(uint32_t i=0;i<NumByteToRead ; i++)
-	{
-		if((i%8==0)&&(i>2))
-		{
-			printf("\r\n");
-			W25qxx_Delay(10);
-		}
-		printf("0x%02X,",pBuffer[i]);		
-	}
-	printf("\r\n");
-	printf("w25qxx ReadBytes done after %d ms\r\n",StartTime);
-	W25qxx_Delay(100);
-	#endif	
-    W25qxx_Delay(1);
     w25qxx.Lock = 0;
 }
 //###################################################################################################################
